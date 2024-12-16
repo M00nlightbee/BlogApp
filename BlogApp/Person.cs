@@ -16,7 +16,7 @@ namespace BlogApp
         protected string email;
         protected string passWord;
 
-        //Person Contructor
+        //Contructor
         public Person(string fName, string lName, string myEmail, string pwd)
         {
             firstName = fName;
@@ -25,19 +25,21 @@ namespace BlogApp
             passWord = pwd;
         }
 
+        //functions to access data outside of scope
         public string GetFirstName() { return firstName; }
         public string GetLastName() { return lastName; }
         public string GetEmail() { return email; }
         public string GetPassWord() { return passWord; }
 
-        public void LogIn()
-        {
-            Console.WriteLine($" Hello {firstName} {lastName}");
-        }
-        public void Register()
-        {
-            Console.WriteLine($" You are now registered: {firstName} {lastName}");
-        }
+        //function 
+        //public void LogIn()
+        //{
+        //    Console.WriteLine($" Hello {firstName} {lastName}");
+        //}
+        //public void Register()
+        //{
+        //    Console.WriteLine($" You are now registered: {firstName} {lastName}");
+        //}
 
         //Polymorphism
         //Serialisation and binary

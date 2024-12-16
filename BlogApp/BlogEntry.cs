@@ -12,7 +12,7 @@ namespace BlogApp
     internal class BlogEntry : Person
     {
         //Encapsulation
-        //public data members
+        //protected data members
         protected string entryDate;
         protected string title;
         protected string description;
@@ -24,6 +24,11 @@ namespace BlogApp
             title = entryTitle;
             description = entryDescription;
         }
+
+        //functions to access data outside of scope
+        public string GetEntryDate() { return entryDate; }
+        public string GetTitle() { return title; }
+        public string GetDescription() { return description; }
 
         //Polymorphism
         //Serialisation and binary
