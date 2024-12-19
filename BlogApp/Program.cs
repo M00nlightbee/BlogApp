@@ -115,6 +115,7 @@ void Login()
     //BinaryReader with list to read into list and access to print back to console
     List<Person> blogFromBinary = new List<Person>();
 
+    //replace filestream to memorystream and store in memory
     FileStream fsr = new FileStream("user.dat", FileMode.Open);
     BinaryReader br = new BinaryReader(fsr);
 
