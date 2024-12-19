@@ -29,6 +29,11 @@ namespace BlogApp
         public string GetEntryDate() { return entryDate; }
         public string GetTitle() { return title; }
         public string GetDescription() { return description; }
+ 
+        public string CreateEntry()
+        {
+            return $"{title} - {entryDate} - {description}";
+        }
 
         //Polymorphism
         //Serialisation and binary
@@ -57,5 +62,6 @@ namespace BlogApp
             this.title = br.ReadString();
             this.description = br.ReadString();
         }
+
     }
 }
