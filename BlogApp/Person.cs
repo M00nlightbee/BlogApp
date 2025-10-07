@@ -31,22 +31,12 @@ namespace BlogApp
         public string GetEmail() { return email; }
         public string GetPassWord() { return passWord; }
 
-        //function 
-        //public void LogIn()
-        //{
-        //    Console.WriteLine($" Hello {firstName} {lastName}");
-        //}
-        //public void Register()
-        //{
-        //    Console.WriteLine($" You are now registered: {firstName} {lastName}");
-        //}
-
         //Polymorphism
+
         //Serialisation and binary
         public abstract void WriteBinary(BinaryWriter bw);
 
         //Deserialisation and binary
         public abstract void ReadBinary(BinaryReader br);
-
     }
 }

@@ -2,18 +2,15 @@
 using System.Linq;
 using System.IO;
 using Microsoft.Win32;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Text;
+using Spectre.Console;
 
 //list Collection
+//test@email.com
+//pass09&DO
 List<Person> people = new List<Person>();
-
-//string firstName = "Blessing";
-//string lastName = "Uloyok";
-//string email = "test@email.com";
-//string passWord = "pass123";
-//string confirmPassword;
-//string blogDate = DateTime.Now.ToString("dd/MM/yyyy");
-//string blogTitle = "Title";
-//string blogDescription = "some description";
 
 string firstName = "";
 string lastName = "";
@@ -22,42 +19,33 @@ string passWord = "";
 string confirmPassword;
 string blogDate = DateTime.Now.ToString("dd/MM/yyyy");
 string blogTitle = "";
-string blogDescription= "";
+string blogDescription = "";
 
-//BlogEntry newEntry = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
-//people.Add(newEntry);
+StringBuilder sb = new StringBuilder(1000);
 
-//var matches = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
+//AnsiConsole.MarkupLine("[center]Blog App\n[/] [italic blue]\nBy: Owajigbana Blessing Uloyok[/]");
 
-//FirstOrDefault() in place of First() to avoid throwing error for null value
-//Person loggedIn = matches.FirstOrDefault();
+var rule = new Rule("[bold green]Blog App\n[/] [italic blue]\nBy: Owajigbana Blessing Uloyok[/]");
+rule.Centered();
+AnsiConsole.Write(rule);
 
+//Full application calling created function for section
+//for both readability and resueability
 while (true)
 {
-    //BlogEntry newEntry = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
     //Options section
-    Console.Write("[R]egister,[L]ogin, [C]reate, [V]iew,or [Q]uit? ");
+    Console.Write("Options: [R]egister,[L]ogin, or [Q]uit? ");
     string choice = Console.ReadLine().ToUpper();
 
     //Register Section
     if (choice == "R")
     {
-        registerToBlog();
+        Register();
     }
     //Login Section
     else if (choice == "L")
     {
-        logIntoBlog();
-    }
-    //Create entry Section
-    else if (choice == "C")
-    {
-        createEntry();
-    }
-    //View entry Section
-    else if (choice == "V")
-    {
-        viewEntry();
+        Login();
     }
     //quit or logout 
     else if (choice == "Q")
@@ -66,117 +54,183 @@ while (true)
     }
 }
 
-void registerToBlog()
+//Register Section Function
+void Register()
 {
-    //Register Section
     while (true)
     {
-        Console.WriteLine("Register Section");
+        AnsiConsole.MarkupLine("[bold yellow]\nRegister Section[/] ");
+        //Console.WriteLine("\nRegister Section");
         Console.Write("First Name: ");
-        firstName = Convert.ToString(Console.ReadLine());
+        firstName = Convert.ToString(Console.ReadLine().ToUpper());
         Console.Write("Last Name: ");
-        lastName = Convert.ToString(Console.ReadLine());
+        lastName = Convert.ToString(Console.ReadLine().ToUpper());
         Console.Write("Email: ");
         email = Convert.ToString(Console.ReadLine());
         Console.Write("Password: ");
         passWord = Convert.ToString(Console.ReadLine());
-        Console.Write("Confirm Password: ");
-        confirmPassword = Convert.ToString(Console.ReadLine());
 
         BlogEntry register = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
-        var matches = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
-        //Algorithms
-        //var match = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
 
-        if (firstName == "" || lastName == "" || passWord == "" || confirmPassword == "")
+        //Algorithm (linq query)
+        var userMatch = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
+
+        // Regular expressions for email format
+        Regex regexEmail = new Regex(@"^[^@\s]+@[^@\s]+\.(com|net|org|gov)$");
+        // Regular expressions for strong password and length of >= 8
+        Regex validatePwd = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
+
+        //StringBuilder sb = new StringBuilder();
+
+        //User input validation exception handling
+        try
         {
-            Console.WriteLine("Cannot have empty field!!");
+            if (String.IsNullOrWhiteSpace(firstName) == true)
+            {
+                //sb.Append("First Name field can't be empty or whitespace");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]First Name field can't be empty or whitespace[/]");
+            }
+            else if (String.IsNullOrWhiteSpace(lastName) == true)
+            {
+                //sb.Append("Last Name field can't be empty or whitespace");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]Last Name field can't be empty or whitespace[/]");
+            }
+            else if (!regexEmail.IsMatch(email))
+            {
+                throw new InvalidEmailException(email);
+            }
+            else if (!validatePwd.IsMatch(passWord))
+            {
+                throw new InvalidPasswordException(passWord);
+            }
+            else if (userMatch.Count() == 1)
+            {
+                sb.Append("Account already exist");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]Account already exist[/]");
+            }
+            else
+            { 
+                people.Add(register);
+
+            
+                AnsiConsole.MarkupLine($"[#00ff00]You are now registered: {firstName} {lastName}\n[/]");
+                break;
+            }
         }
-        else if (firstName.Contains(" ") || lastName.Contains(" ") || email.Contains(" ") || passWord.Contains(" ") || confirmPassword.Contains(" "))
+        catch (InvalidEmailException ex)
         {
-            Console.WriteLine("Each field MUST BE one word, no spaces");
+            Console.WriteLine(ex.Message);
         }
-        else if (passWord != confirmPassword)
+        catch (InvalidPasswordException ex)
         {
-            Console.WriteLine("Password does not match");
-        }
-        else if (matches.Count() == 1)
-        {
-            Console.WriteLine($"Account Exist");
-        }
-        else
-        {
-            people.Add(register);
-            Console.WriteLine($" You are now registered: {firstName} {lastName}");
-            break;
+            Console.WriteLine(ex.Message);
         }
     }
-    Save();
+    // save to users file
+    SaveUser();
 }
-void logIntoBlog()
+
+void Login()
 {
-    //Login Section
-    Console.WriteLine("Login Section");
-    Console.Write("email: ");
+    //BinaryReader with list to read into list and access to print back to console
+    List<Person> blogFromBinary = new List<Person>();
+
+    //replace filestream to memorystream and store in memory
+    FileStream fsr = new FileStream("user.dat", FileMode.Open);
+    BinaryReader br = new BinaryReader(fsr);
+
+    while (br.BaseStream.Position < br.BaseStream.Length)
+    {
+        Person loggedin = null;
+        string type = br.ReadString();
+        if (type == "BlogEntry")
+        {
+            loggedin = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
+            loggedin.ReadBinary(br);
+        }
+        blogFromBinary.Add(loggedin);
+    }
+
+    br.Close();
+    fsr.Close();
+
+    //For user entry
+    AnsiConsole.MarkupLine("[bold yellow]\nLogin Section[/] ");
+    //Console.WriteLine("\nLogin Section");
+    Console.Write("Email: ");
     email = Convert.ToString(Console.ReadLine());
     Console.Write("Password: ");
     passWord = Convert.ToString(Console.ReadLine());
 
-    BlogEntry login = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
-    var matches = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
+    //Algorithm(linq query)
+    IEnumerable<Person> userMatch = from p in blogFromBinary
+                                    where p.GetEmail() == email && p.GetPassWord() == passWord
+                                    select p;
 
     if (email == "" || passWord == "")
     {
-        Console.WriteLine("cannot be empyty");
+        sb.Append("cannot be empyty\n");
+        Console.WriteLine(sb);
     }
-    else if (matches.Count() == 0)
+    else if (userMatch.Count() == 1)
     {
-        Console.WriteLine($"No account found, Register Below");
+        // use multiple processor
+        Parallel.ForEach(userMatch, p =>
+        {
+            sb.Append($"Hello {p.GetFirstName()} {p.GetLastName()}\n");
+            Console.WriteLine(sb);
+        });
+        while (true)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Would you like to create an entry?[/] ");
+            Console.Write("[Y]es or [N]o? ");
+            string opt = Console.ReadLine().ToUpper();
+            if (opt == "Y")
+            {
+                Create();
+            }
+            else if (opt == "N")
+            {
+                break;
+            }
+        }
     }
     else
     {
-        people.Add(login);
-        Console.WriteLine($" Hello {firstName} {lastName}");
+        sb.Append("No account found, Register Below");
+        Console.WriteLine(sb);
     }
-    Save();
 }
 
-void createEntry()
+//Make an Entry Function
+void Create()
 {
-    //Make an Entry
-    Console.WriteLine("Entry Section");
-    Console.WriteLine("Make an entry below");
+    AnsiConsole.MarkupLine("[bold yellow]\nEntry Section[/] ");
+    //Console.WriteLine("Entry Section");
+    Console.WriteLine("Make an entry below:");
     Console.Write("Blog Title: ");
     blogTitle = Convert.ToString(Console.ReadLine());
     Console.Write("Blog Entry: ");
     blogDescription = Console.ReadLine();
 
     BlogEntry create = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
-    var matches = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
-    if (matches.Count() == 1)
+
+    if (!String.IsNullOrEmpty(blogTitle))
     {
         people.Add(create);
-        //Console.WriteLine($"Entry created {blogDate}");
-        Console.WriteLine($"Entry Created Successfully");
+        Console.WriteLine(create.CreateEntry());
     }
-    Save();
-}
-void viewEntry()
-{
-    //View Section
-    foreach (BlogEntry p in people)
-    {
-        Console.WriteLine($"Date of entry {p.GetEntryDate()}");
-        Console.WriteLine($"Title: {p.GetTitle()} by {p.GetFirstName()} {p.GetLastName()}");
-        Console.WriteLine(p.GetDescription());
-    }
-    Read();
+    // save to entry file
+    SaveEntry();
 }
 
-//BinaryWriter
-void Save()
+//BinaryWriter Function
+void SaveUser()
 {
-    FileStream fsw = new FileStream("blog.dat", FileMode.Create);
+    FileStream fsw = new FileStream("user.dat", FileMode.Create);
     BinaryWriter bw = new BinaryWriter(fsw);
 
     foreach (Person p in people)
@@ -188,29 +242,23 @@ void Save()
     fsw.Close();
 }
 
-//BinaryReader
-void Read()
+void SaveEntry()
 {
-    //new list to store data and read from
-    List<Person> peopleFromBinary = new List<Person>();
-    FileStream fsr = new FileStream("blog.dat", FileMode.Open);
-    BinaryReader br = new BinaryReader(fsr);
+    FileStream fsw = new FileStream("entry.dat", FileMode.Create);
+    BinaryWriter bw = new BinaryWriter(fsw);
 
-    while (br.BaseStream.Position < br.BaseStream.Length)
+    foreach (Person p in people)
     {
-        Person binPerson = null;
-        string type = br.ReadString();
-        if (type == "BlogEntry")
-        {
-            binPerson = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
-            binPerson.ReadBinary(br);
-        }
-        peopleFromBinary.Add(binPerson);
+        p.WriteBinary(bw);
     }
 
-    br.Close();
-    fsr.Close();
+    bw.Close();
+    fsw.Close();
 }
+
+
+
+
 
 
 
