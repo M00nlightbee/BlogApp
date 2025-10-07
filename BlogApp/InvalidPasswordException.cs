@@ -10,6 +10,6 @@ namespace BlogApp
     {
         public InvalidPasswordException() { }
 
-        public InvalidPasswordException(string pwd) : base(String.Format("Invalid password: {0} must include and start with: \n- Letter first, \n- Then number , \n- Then special character", pwd)) { }
+        public InvalidPasswordException(string pwd) : base(String.Format("Invalid password: {0}  must be letters first, number , special character", pwd)) { }
     }
 }
