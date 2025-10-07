@@ -2,7 +2,7 @@
 
 ## About the Project
 
-The **BlogApp** is an application used to demonstrate knowledge on Object-Oriented Programming with C#
+The **BlogApp** is a console application used to demonstrate knowledge on Object-Oriented Programming with C#
 
 Dealing with Data:
 - Collections
