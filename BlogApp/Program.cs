@@ -4,8 +4,12 @@ using System.IO;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Text;
+using Spectre.Console;
 
 //list Collection
+//test@email.com
+//pass09&DO
 List<Person> people = new List<Person>();
 
 string firstName = "";
@@ -15,14 +19,22 @@ string passWord = "";
 string confirmPassword;
 string blogDate = DateTime.Now.ToString("dd/MM/yyyy");
 string blogTitle = "";
-string blogDescription= "";
+string blogDescription = "";
+
+StringBuilder sb = new StringBuilder(1000);
+
+//AnsiConsole.MarkupLine("[center]Blog App\n[/] [italic blue]\nBy: Owajigbana Blessing Uloyok[/]");
+
+var rule = new Rule("[bold green]Blog App\n[/] [italic blue]\nBy: Owajigbana Blessing Uloyok[/]");
+rule.Centered();
+AnsiConsole.Write(rule);
 
 //Full application calling created function for section
 //for both readability and resueability
 while (true)
 {
     //Options section
-    Console.Write("[R]egister,[L]ogin, or [Q]uit? ");
+    Console.Write("Options: [R]egister,[L]ogin, or [Q]uit? ");
     string choice = Console.ReadLine().ToUpper();
 
     //Register Section
@@ -47,7 +59,8 @@ void Register()
 {
     while (true)
     {
-        Console.WriteLine("Register Section");
+        AnsiConsole.MarkupLine("[bold yellow]\nRegister Section[/] ");
+        //Console.WriteLine("\nRegister Section");
         Console.Write("First Name: ");
         firstName = Convert.ToString(Console.ReadLine().ToUpper());
         Console.Write("Last Name: ");
@@ -60,23 +73,29 @@ void Register()
         BlogEntry register = new BlogEntry(firstName, lastName, email, passWord, blogDate, blogTitle, blogDescription);
 
         //Algorithm (linq query)
-        var userMatch = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1); 
+        var userMatch = people.Where(p => p.GetEmail() == email && p.GetPassWord() == passWord).Take(1);
 
         // Regular expressions for email format
         Regex regexEmail = new Regex(@"^[^@\s]+@[^@\s]+\.(com|net|org|gov)$");
         // Regular expressions for strong password and length of >= 8
         Regex validatePwd = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
 
+        //StringBuilder sb = new StringBuilder();
+
         //User input validation exception handling
         try
         {
             if (String.IsNullOrWhiteSpace(firstName) == true)
             {
-                Console.WriteLine("First Name field can't be empty or whitespace");
+                //sb.Append("First Name field can't be empty or whitespace");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]First Name field can't be empty or whitespace[/]");
             }
             else if (String.IsNullOrWhiteSpace(lastName) == true)
             {
-                Console.WriteLine("Last Name field can't be empty or whitespace");
+                //sb.Append("Last Name field can't be empty or whitespace");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]Last Name field can't be empty or whitespace[/]");
             }
             else if (!regexEmail.IsMatch(email))
             {
@@ -88,12 +107,16 @@ void Register()
             }
             else if (userMatch.Count() == 1)
             {
-                Console.WriteLine("Account already exist");
+                sb.Append("Account already exist");
+                //Console.WriteLine(sb);
+                AnsiConsole.MarkupLine("[#ff0000]Account already exist[/]");
             }
             else
-            {
+            { 
                 people.Add(register);
-                Console.WriteLine($" You are now registered: {firstName} {lastName}");
+
+            
+                AnsiConsole.MarkupLine($"[#00ff00]You are now registered: {firstName} {lastName}\n[/]");
                 break;
             }
         }
@@ -135,7 +158,8 @@ void Login()
     fsr.Close();
 
     //For user entry
-    Console.WriteLine("Login Section");
+    AnsiConsole.MarkupLine("[bold yellow]\nLogin Section[/] ");
+    //Console.WriteLine("\nLogin Section");
     Console.Write("Email: ");
     email = Convert.ToString(Console.ReadLine());
     Console.Write("Password: ");
@@ -148,25 +172,27 @@ void Login()
 
     if (email == "" || passWord == "")
     {
-        Console.WriteLine("cannot be empyty");
+        sb.Append("cannot be empyty\n");
+        Console.WriteLine(sb);
     }
     else if (userMatch.Count() == 1)
     {
         // use multiple processor
         Parallel.ForEach(userMatch, p =>
         {
-            Console.WriteLine($" Hello {p.GetFirstName()} {p.GetLastName()}");
+            sb.Append($"Hello {p.GetFirstName()} {p.GetLastName()}\n");
+            Console.WriteLine(sb);
         });
         while (true)
         {
-            Console.WriteLine("Would you like to create an entry?");
+            AnsiConsole.MarkupLine("[bold yellow]Would you like to create an entry?[/] ");
             Console.Write("[Y]es or [N]o? ");
             string opt = Console.ReadLine().ToUpper();
             if (opt == "Y")
             {
                 Create();
             }
-            else if(opt == "N")
+            else if (opt == "N")
             {
                 break;
             }
@@ -174,15 +200,17 @@ void Login()
     }
     else
     {
-        Console.WriteLine("No account found, Register Below");
+        sb.Append("No account found, Register Below");
+        Console.WriteLine(sb);
     }
 }
 
 //Make an Entry Function
 void Create()
 {
-    Console.WriteLine("Entry Section");
-    Console.WriteLine("Make an entry below");
+    AnsiConsole.MarkupLine("[bold yellow]\nEntry Section[/] ");
+    //Console.WriteLine("Entry Section");
+    Console.WriteLine("Make an entry below:");
     Console.Write("Blog Title: ");
     blogTitle = Convert.ToString(Console.ReadLine());
     Console.Write("Blog Entry: ");
@@ -227,6 +255,9 @@ void SaveEntry()
     bw.Close();
     fsw.Close();
 }
+
+
+
 
 
 
